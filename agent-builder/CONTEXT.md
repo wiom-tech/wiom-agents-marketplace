@@ -1,5 +1,5 @@
 # Agent Builder — Shared Context
-## Version 2.4
+## Version 2.5
 
 Implementation context per AGENT_STACK_FORMAT.md §5.3. Format definitions live in AGENT_STACK_FORMAT.md — not restated here.
 
@@ -9,7 +9,7 @@ Implementation context per AGENT_STACK_FORMAT.md §5.3. Format definitions live 
 
 - **Product:** Agent specifications for the Wiom build pipeline
 - **Users:** Founder, product leads, engineering leads defining agent-driven workflows
-- **Output:** Complete agent folders conforming to AGENT_STACK_FORMAT.md v2.4
+- **Output:** Complete agent folders conforming to AGENT_STACK_FORMAT.md v2.5
 
 ---
 
@@ -17,13 +17,15 @@ Implementation context per AGENT_STACK_FORMAT.md §5.3. Format definitions live 
 
 | Document | Version | Role |
 |---|---|---|
-| AGENT_STACK_FORMAT.md | v2.4 | SOURCE_OF_TRUTH |
-| AGENT_SPEC.md | v2.4 | SOURCE_OF_TRUTH |
-| SKILLS_INDEX.md | v2.4 | SOURCE_OF_TRUTH |
-| CONTEXT.md | v2.4 | SOURCE_OF_TRUTH |
-| elicitation/SKILL.md | v2.4 | SOURCE_OF_TRUTH |
-| skill-orchestrator/SKILL.md | v1.4 | SOURCE_OF_TRUTH |
-| assembly/SKILL.md | v2.4 | SOURCE_OF_TRUTH |
+| AGENT_STACK_FORMAT.md | v2.5 | SOURCE_OF_TRUTH |
+| AGENT_SPEC.md | v2.5 | SOURCE_OF_TRUTH |
+| SKILLS_INDEX.md | v2.5 | SOURCE_OF_TRUTH |
+| CONTEXT.md | v2.5 | SOURCE_OF_TRUTH |
+| elicitation/SKILL.md | v2.5 | SOURCE_OF_TRUTH |
+| skill-orchestrator/SKILL.md | v1.5 | SOURCE_OF_TRUTH |
+| assembly/SKILL.md | v2.5 | SOURCE_OF_TRUTH |
+| input-diff/SKILL.md | v1.0 | SOURCE_OF_TRUTH (template — copied into target agents) |
+| output-comparison/SKILL.md | v1.0 | SOURCE_OF_TRUTH (template — copied into target agents) |
 
 ---
 
@@ -41,6 +43,7 @@ Implementation context per AGENT_STACK_FORMAT.md §5.3. Format definitions live 
 | Output format + versioning | AGENT_STACK_FORMAT.md | §8 |
 | Agent package file structure | AGENT_STACK_FORMAT.md | §10 |
 | Run-time protocol | AGENT_STACK_FORMAT.md | §12 |
+| Amendment mode protocol | AGENT_STACK_FORMAT.md | §12.5 |
 | Agent-specific objective + measures | AGENT_SPEC.md | INSTRUCTIONS |
 | Skill routing + execution order | SKILLS_INDEX.md | Execution Order |
 
@@ -72,6 +75,8 @@ Quick-reference for elicitation. Canonical definitions per AGENT_STACK_FORMAT.md
 - [ ] Skill bindings stated (MUST USE / MUST REFER / partial)
 - [ ] Prohibitions defined
 - [ ] Agent-specific kill conditions defined
+- [ ] Amendment mode decision made (YES/NO per §12.5)
+- [ ] IF amendment YES: changeable inputs identified, founder decisions criticality decided
 
 ### Layer 3 — Skills: ask until...
 - [ ] Skills uploaded or described
@@ -93,4 +98,4 @@ Quick-reference for elicitation. Canonical definitions per AGENT_STACK_FORMAT.md
 
 ---
 
-*Agent Builder — Shared Context v2.4*
+*Agent Builder — Shared Context v2.5*

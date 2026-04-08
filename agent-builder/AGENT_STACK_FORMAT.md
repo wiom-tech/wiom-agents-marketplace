@@ -1,5 +1,5 @@
 # Agent Stack Format — Canonical Standard
-## Version 2.4
+## Version 2.5
 
 This is the sole normative document for the agent stack format. No other file may redefine what is defined here. Other files may only reference sections of this document using "per AGENT_STACK_FORMAT.md §X."
 
@@ -652,8 +652,151 @@ During skill execution, if the agent must make any choice not explicitly covered
 
 This rule is inherited by every agent the Agent Builder creates. It applies at both build time and run time.
 
+### §12.5 — Amendment Mode
+
+Amendment mode is a run-time variant where the agent updates an existing locked output instead of producing one from scratch. The agent's skills, checks, and constraints are identical in both modes. Only the run-time protocol changes.
+
+**When to use:** An input document has been updated (new LOCKED version) and the existing output must be brought into conformance with the new input.
+
+**Amendment mode is opt-in at build time.** The Agent Builder asks whether the target agent should support amendment mode. If yes, two additional skills are added to the agent package: `/input-diff/` and `/output-comparison/`. If no, the agent only supports fresh builds.
+
+#### §12.5.1 — Amendment Run-Time Protocol
+
+```
+1. Human provides:
+   - BASELINE: existing locked output (must have PASS/CONDITIONAL PASS conformance
+     from a prior run of THIS agent)
+   - CHANGED INPUT(S): new version of one or more source documents
+   - UNCHANGED INPUT(S): same versions as the original run
+   - (Optional) ORIGINAL LOG: LOG.md from the run that produced BASELINE
+
+2. Agent validates:
+   - BASELINE conformance stamp present and valid
+   - CHANGED INPUT(S) are newer versions of same document type
+   - All version gates still apply (§3)
+   - If BASELINE has no conformance stamp → ABORT. Not a valid baseline.
+
+3. Input Diff (skill: /input-diff/):
+   - Diff each CHANGED INPUT old version vs new version
+   - Produce CHANGE SUMMARY: additions, removals, modifications
+   - Present to human: "These are the input changes I detected. Complete?"
+   - Human confirms, or identifies additional changes agent missed
+
+4. Impact Analysis (skill: /input-diff/ continued):
+   - Map each input change to affected output sections
+   - Produce IMPACT TABLE:
+     | Input Change | Type | Affected Sections | Rationale |
+   - Present to human for confirmation
+   - Human may add sections agent missed
+
+5. Re-derive (FULL — not partial):
+   - Agent re-runs ALL domain skills on ALL sections using new inputs
+   - BASELINE is loaded as REFERENCE (not SOURCE_OF_TRUTH)
+   - Founder decisions from ORIGINAL LOG are loaded as CONTEXT
+     (decisions the human made during the original run)
+   - Skills execute identically to fresh mode — no shortcuts
+
+6. Change Classification (skill: /output-comparison/):
+   - Diff BASELINE vs new output, section by section
+   - Classify each difference:
+
+     | Classification | Meaning | Action |
+     |---|---|---|
+     | TRACED | Change maps to an input diff | ACCEPT |
+     | FOUNDER_OVERRIDE | Change overwrites a founder decision from original run | PAUSE — surface to human |
+     | UNTRACED | Change has no input diff explanation | REJECT — flag as potential regression |
+
+   - Present classification table to human
+   - Human resolves FOUNDER_OVERRIDE items (keep original or accept new)
+   - Human resolves UNTRACED items (accept with justification, or revert)
+
+7. Full Validation:
+   - Run ALL checks (same as fresh mode) on the complete output
+   - This catches cross-section regression:
+     e.g., "OS removed a state, but §6 still references it"
+   - Validation does not know or care whether mode is fresh or amendment
+
+8. Produce output:
+   - Amended output with version bump (per §8.3)
+   - AMENDMENT_LOG.md (new artifact — see §12.5.3)
+   - Standard LOG.md for this run
+   - Conformance stamp (same format as fresh mode)
+```
+
+#### §12.5.2 — Regression Protection
+
+Amendment mode catches regression at three layers:
+
+| Layer | What It Catches | How |
+|---|---|---|
+| Full re-derive (Step 5) | Missed impact — input change affects a section the agent didn't predict | All sections re-derived from new inputs, not just predicted ones |
+| Change classification (Step 6) | Unintended drift — a section changed with no input explanation | UNTRACED classification flags it for human review |
+| Change classification (Step 6) | Founder decision loss — a human decision from original run overwritten silently | FOUNDER_OVERRIDE classification pauses for human confirmation |
+| Full validation (Step 7) | Cross-section inconsistency — a valid section references something removed in another section | Same C1-CN checks as fresh mode, on complete output |
+
+**Key design principle:** Amendment mode re-derives everything, then classifies what changed. It does NOT selectively patch sections. Selective patching creates blind spots. Full re-derivation with change classification provides both efficiency (human only reviews actual changes) and safety (nothing is assumed unchanged).
+
+#### §12.5.3 — AMENDMENT_LOG.md Format
+
+```
+# Amendment Log
+Agent: [name] v[X]
+Date: [date]
+Mode: AMENDMENT
+
+Baseline: [filename] v[X] (conformance: [PASS/CONDITIONAL PASS])
+Changed inputs:
+  - [filename] v[old] → v[new]
+Unchanged inputs:
+  - [filename] v[X]
+
+─────────────────────
+INPUT CHANGES:
+  [N] additions, [N] removals, [N] modifications
+  (Detail from input-diff skill)
+
+IMPACT TABLE:
+  | Input Change | Affected Sections | Rationale |
+
+CHANGE CLASSIFICATION:
+  | Section | Status | Classification | Detail |
+  TRACED: [count]
+  FOUNDER_OVERRIDE: [count] — [resolved/pending]
+  UNTRACED: [count] — [resolved/pending]
+
+FOUNDER DECISIONS:
+  Preserved: [count]
+  Overridden (with human approval): [count]
+  
+VERSION: [old] → [new]
+CONFORMANCE: [PASS / CONDITIONAL PASS / FAIL]
+─────────────────────
+```
+
+#### §12.5.4 — Amendment Mode Constraints
+
+| Allowed | Not Allowed |
+|---|---|
+| Update output to match new input versions | Change objective or constraints (that is a new agent) |
+| Preserve or override founder decisions (with human approval) | Skip full validation |
+| Add sections required by new input | Remove sections without input-change justification |
+| Version bump output | Downgrade output version |
+
+**Rule:** Amendment mode may update. It may not expand scope. If the input changes require new skills or new sections not in the original template, that is a fresh build — not an amendment.
+
+#### §12.5.5 — Amendment Skills (added to agent package when amendment mode is enabled)
+
+```
+/[agent-name]/
+  ... (all existing files)
+  /input-diff/SKILL.md         ← diffs old vs new inputs, produces change summary + impact table
+  /output-comparison/SKILL.md  ← diffs baseline vs new output, classifies changes
+```
+
+These skills are domain-agnostic — they work with any agent's inputs and outputs. The Agent Builder generates them with agent-specific context (which inputs to diff, which sections to classify).
+
 ---
 
-*Agent Stack Format — Canonical Standard v2.4*
+*Agent Stack Format — Canonical Standard v2.5*
 *The sole normative document. No file may redefine what is defined here.*
-*Build time creates the agent. Run time uses it.*
+*Build time creates the agent. Run time uses it. Amendment mode updates it.*

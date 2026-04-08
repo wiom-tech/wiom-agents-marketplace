@@ -1,5 +1,5 @@
 # Skill Orchestrator
-## SKILL.md — Version 1.4
+## SKILL.md — Version 1.5
 
 Conforms to AGENT_STACK_FORMAT.md §5.4 (9-section skill format).
 
@@ -136,4 +136,4 @@ Validated SKILL.md files, SKILLS_INDEX.md content, CONTEXT.md content, gap resul
 
 ---
 
-*Skill Orchestrator — SKILL.md v1.4*
+*Skill Orchestrator — SKILL.md v1.5*
