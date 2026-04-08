@@ -1,5 +1,5 @@
 # Assembly
-## SKILL.md — Version 2.4
+## SKILL.md — Version 2.5
 
 Conforms to AGENT_STACK_FORMAT.md §5.4 (9-section skill format).
 
@@ -56,11 +56,33 @@ Step 6: Generate RUN.md per §10.1
     - Run-time protocol: always §12.1 steps
     - Default output format: from AGENT_SPEC §4.2
     - Rules: extract universal (§7.5, §7.6, §12.4) + agent-specific constraints + kills
+  → IF amendment_mode = YES:
+    - Add "## Amendment Mode" section to RUN.md per §12.5
+    - Include amendment run-time protocol (§12.5.1 steps)
+    - List changeable inputs from Elicitation
+    - Note whether founder decisions tracking is critical or optional
+    - Reference /input-diff/ and /output-comparison/ skills
   → No human input needed. Pure derivation.
 
 Step 7: Generate LOG.md per §8.2
 
-Step 8: Post-assembly cross-check
+Step 8: Add amendment skills (if amendment_mode = YES)
+  → Copy /input-diff/SKILL.md into target agent package
+  → Copy /output-comparison/SKILL.md into target agent package
+  → Customize REQUIRED INPUTS in both skills with agent-specific:
+    - Input document names and types (from Elicitation changeable_inputs)
+    - Output section structure (from template/output format)
+  → Add both skills to SKILLS_INDEX.md:
+    - Type: domain
+    - Mandatory: conditional (amendment mode only)
+    - Execution order: input-diff → [existing domain skills] → output-comparison → validation
+  → Add amendment-specific checks to AGENT_SPEC checks table:
+    - All UNTRACED items resolved
+    - All FOUNDER_OVERRIDE items resolved
+    - AMENDMENT_LOG.md produced
+  → IF amendment_mode = NO: skip this step entirely
+
+Step 9: Post-assembly cross-check
   → Every constraint → at least one skill Traceability
   → Every skill in SKILLS_INDEX → matching SKILL.md exists
   → Every check → traces to measure, constraint, or rule
@@ -71,9 +93,11 @@ Step 8: Post-assembly cross-check
   → LOG.md complete
   → RUN.md exists and references correct files
   → Output format defined
+  → IF amendment_mode = YES: /input-diff/ and /output-comparison/ exist,
+    amendment protocol in RUN.md, amendment checks in AGENT_SPEC
   → If any fails → S1 STOP. Surface specific gap to human.
 
-Step 9: Version + emit per §8.3, §8.4
+Step 10: Version + emit per §8.3, §8.4
 ```
 
 ---
@@ -91,6 +115,9 @@ R8: IF content untraceable → S1 STOP. Surface to human: "This content has no s
 R9: No restatement of AGENT_STACK_FORMAT.md (per §2)
 R10: IF output format missing → S1 STOP
 R11: IF any STRUCTURAL decision in LOG.md has no AUTHORITY citation → S1 STOP (per §8.2, §12.4)
+R12: IF amendment_mode = YES → /input-diff/ and /output-comparison/ MUST be present in target agent package. Missing either → S1 STOP.
+R13: IF amendment_mode = YES → RUN.md MUST contain amendment protocol section. Missing → S1 STOP.
+R14: IF amendment_mode = YES and founder_decisions_critical = YES → ORIGINAL LOG must be listed as required (not optional) input in amendment protocol.
 
 ---
 
@@ -104,6 +131,8 @@ R11: IF any STRUCTURAL decision in LOG.md has no AUTHORITY citation → S1 STOP 
   CONTEXT.md
   /[skill-1]/SKILL.md
   /[skill-n]/SKILL.md
+  /input-diff/SKILL.md          ← (if amendment_mode = YES)
+  /output-comparison/SKILL.md   ← (if amendment_mode = YES)
   LOG.md
 ```
 
@@ -121,6 +150,8 @@ R11: IF any STRUCTURAL decision in LOG.md has no AUTHORITY citation → S1 STOP 
 | STRUCTURAL decision without AUTHORITY in LOG.md | S1 | STOP |
 | Placeholder (PENDING/TBD) where JUDGMENT required | S1 | STOP |
 | RUN.md missing or references wrong files | S1 | STOP |
+| Amendment mode enabled but /input-diff/ or /output-comparison/ missing | S1 | STOP |
+| Amendment mode enabled but RUN.md lacks amendment protocol | S1 | STOP |
 | Measure of success has no derived check | S2 | FLAG |
 | Contradiction between files | S2 | FLAG — surface |
 
@@ -150,10 +181,11 @@ R11: IF any STRUCTURAL decision in LOG.md has no AUTHORITY citation → S1 STOP 
 | JUDGMENT is synchronous — no placeholders | §7.6 |
 | Decision log with AUTHORITY (STRUCTURAL vs STYLISTIC) | §8.2 |
 | RUN.md generation | §10.1 |
+| Amendment mode skills and protocol | §12.5, §12.5.5 |
 | Run-time protocol inherited by target agent | §12 |
 | Decision Authority Rule inherited by target agent | §12.4 |
 | No restatement | §2 |
 
 ---
 
-*Assembly — SKILL.md v2.4*
+*Assembly — SKILL.md v2.5*

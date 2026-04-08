@@ -1,7 +1,7 @@
 # Agent Builder Agent — Specification
-## Version 2.4
+## Version 2.5
 
-Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, run-time protocol per §12.
+Conforms to AGENT_STACK_FORMAT.md v2.5. Format definitions per §3-§8, §10.1, run-time protocol per §12, amendment mode per §12.5.
 
 ---
 
@@ -11,12 +11,12 @@ Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, 
 
 | Role | Type | Version Min | Conformance Min | Fallback |
 |---|---|---|---|---|
-| SOURCE_OF_TRUTH | AGENT_STACK_FORMAT.md | v2.4 | PASS | K0b fires — ABORT |
+| SOURCE_OF_TRUTH | AGENT_STACK_FORMAT.md | v2.5 | PASS | K0b fires — ABORT |
 | SOURCE_OF_TRUTH | Human conversation | — | — | — |
 | SOURCE_OF_TRUTH | Human-uploaded skill files (if any) | — | — | Proceed to description-based elicitation |
 | REFERENCE (optional) | Existing agent specs (if amending) | — | — | Proceed without |
 
-**Version gate:** If AGENT_STACK_FORMAT.md < v2.4 → K0b fires. Do not proceed.
+**Version gate:** If AGENT_STACK_FORMAT.md < v2.5 → K0b fires. Do not proceed.
 
 ---
 
@@ -35,6 +35,7 @@ Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, 
 - Measure of success defined for target agent
 - Output format defined for target agent
 - RUN.md generated for target agent
+- IF amendment mode enabled: /input-diff/ and /output-comparison/ skills present, amendment protocol in RUN.md
 
 **Output format:** Agent package folder per §10:
 ```
@@ -44,6 +45,8 @@ Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, 
   SKILLS_INDEX.md
   CONTEXT.md
   /[skill-n]/SKILL.md
+  /input-diff/SKILL.md          ← (if amendment_mode = YES, per §12.5.5)
+  /output-comparison/SKILL.md   ← (if amendment_mode = YES, per §12.5.5)
   LOG.md
 ```
 
@@ -84,6 +87,8 @@ Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, 
   /elicitation/SKILL.md
   /skill-orchestrator/SKILL.md
   /assembly/SKILL.md
+  /input-diff/SKILL.md            ← amendment mode template skill (copied into target agents)
+  /output-comparison/SKILL.md     ← amendment mode template skill (copied into target agents)
 ```
 
 ---
@@ -105,6 +110,9 @@ Conforms to AGENT_STACK_FORMAT.md v2.4. Format definitions per §3-§8, §10.1, 
 | C11 | Target agent has output format defined | §4.2 | S1 | STOP |
 | C12 | Every STRUCTURAL decision in LOG.md has AUTHORITY | §8.2, §12.4 | S1 | STOP |
 | C13 | Zero placeholders (PENDING/TBD) where JUDGMENT was required | §7.6 | S1 | STOP |
+| C14 | IF amendment_mode = YES: /input-diff/ and /output-comparison/ in target package | §12.5.5 | S1 | STOP |
+| C15 | IF amendment_mode = YES: RUN.md contains amendment protocol section | §12.5.1 | S1 | STOP |
+| C16 | IF amendment_mode = YES: amendment-specific checks in target AGENT_SPEC | §12.5 | S1 | STOP |
 
 ---
 
@@ -122,4 +130,4 @@ Agent package folder per §10 (includes RUN.md per §10.1) + LOG.md. Output gate
 
 ---
 
-*Agent Builder Agent — Specification v2.4*
+*Agent Builder Agent — Specification v2.5*

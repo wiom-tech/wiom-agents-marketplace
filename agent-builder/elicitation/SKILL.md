@@ -1,5 +1,5 @@
 # Elicitation
-## SKILL.md — Version 2.4
+## SKILL.md — Version 2.5
 
 Conforms to AGENT_STACK_FORMAT.md §5.4 (9-section skill format).
 
@@ -87,8 +87,26 @@ Step 4: Layer 3 — Skills
     → Execution order? Conflicts? Shared context?
   Confirm: "Layer 3 complete. [N] skills. Order: [X→Y→Z]. Correct?"
 
-Step 5: Handoff
-  → Summarize all 3 layers
+Step 5: Amendment Mode (per §12.5)
+  Ask:
+    → "Should this agent support amendment mode?"
+    → "Amendment mode lets the agent update an existing locked output
+       when an input document changes, instead of building from scratch."
+  IF YES:
+    → Ask: "Which input documents are likely to change over time?"
+       (These become the CHANGED INPUT candidates)
+    → Ask: "Does the agent produce founder decisions during a run
+       that should be preserved across amendments?"
+       (Determines whether ORIGINAL LOG loading is critical or optional)
+    → Record: amendment_mode = YES, changeable_inputs = [...],
+       founder_decisions_critical = YES/NO
+    → Note: Assembly will add /input-diff/ and /output-comparison/ skills
+  IF NO:
+    → Record: amendment_mode = NO
+    → Proceed
+
+Step 6: Handoff
+  → Summarize all 3 layers + amendment mode decision
   → "Passing to Skill Orchestrator for validation. Ready?"
   → If changes → re-open relevant layer
 ```
@@ -107,12 +125,14 @@ R7: IF constraint has no downstream consequence → "This may be unnecessary. Ke
 R8: IF human contradicts earlier answer (within same layer or across layers) → PAUSE. Surface both answers. Human picks one. Log change.
 R9: IF human names skill in constraints not provided in Layer 3 → note for Skill Orchestrator
 R10: IF human says "you decide" / "up to you" / "whatever works" → per §7.5: this is NOT permission. Propose specific options. Human must pick one. Log choice with AUTHORITY.
+R11: IF amendment_mode = YES and zero changeable_inputs identified → "Which inputs change? Without this, amendment mode has nothing to diff." Human must provide at least one.
+R12: IF amendment_mode = YES → note in Layer 2 output that Assembly must add /input-diff/ and /output-comparison/ skills and amendment protocol to RUN.md.
 
 ---
 
 ## Output
 
-Structured answer set for Layers 1-3 (including measures of success, output format, and sample output if provided). Passed to Skill Orchestrator.
+Structured answer set for Layers 1-3 (including measures of success, output format, sample output if provided, and amendment mode decision). Passed to Skill Orchestrator.
 
 ---
 
@@ -154,4 +174,4 @@ Structured answer set for Layers 1-3 (including measures of success, output form
 
 ---
 
-*Elicitation — SKILL.md v2.4*
+*Elicitation — SKILL.md v2.5*
